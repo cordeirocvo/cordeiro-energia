@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model PlanilhaInstalacao {
+  id                    String   @id @default(uuid())
+  // Original Fields
+  cliente               String?
+  diaPrev               String?
+  instalacao            String?
+  obsInstalacao         String?
+  vencimentoParecer     String?
+  vencimentoContrato    String?
+  prevInstala           String?
+  dataVenda             String?
+  statusProtocolo       String?
+  statusCompra          String?
+  inversor              String?
+  nMod                  String?
+  modulo                String?
+  cidadeOriginal        String?
+  bairro                String?
+  rua                   String?
+  nRua                  String?
+  telhado               String?
+  telefoneOriginal      String?
+  vendedorOriginal      String?
+
+  // Added Fields
+  observacao           String?
+  anexoFotos           Bytes?   // Armazenando no BD conforme solicitado
+  anexoArquivos        Bytes?
+  dataSolicitacao      DateTime @default(now())
+  solicitacao          String?
+  status               String?
+  vendedor             String?
+  telefoneCliente      String?
+  cidade               String?
+  dataPrevista         String?
+
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model User {
+  id       String @id @default(uuid())
+  username String @unique
+  password String
+  role     String @default("COMUM") // 'ADMIN', 'COMUM', 'TV'
+}
+
+model StatusOption {
+  id       String @id @default(uuid())
+  label    String @unique
+  createdAt DateTime @default(now())
+}
+
