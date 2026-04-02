@@ -17,10 +17,10 @@ export default function Login() {
       body: JSON.stringify({ username, password }),
     });
 
+    const data = await res.json();
     if (res.ok) {
-      router.push("/admin");
+      window.location.href = data.redirectUrl || "/admin";
     } else {
-      const data = await res.json();
       setError(data.error || "Ocorreu um erro ao fazer login.");
     }
   };

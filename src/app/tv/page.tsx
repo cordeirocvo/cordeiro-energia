@@ -186,7 +186,7 @@ export default function TVDashboard() {
 
       <div className="mt-6 text-center text-gray-400 text-sm font-bold border-t border-gray-200 pt-4 uppercase tracking-widest flex justify-between px-8">
          <span>Exibindo {currentBatch.length} instalações abertas • Tecnologia Sistêmica Cordeiro Energia</span>
-         <button onClick={() => { document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = "/login"; }} className="text-gray-300 hover:text-red-500 transition cursor-pointer">Desconectar / Sair</button>
+         <button onClick={async () => { await fetch("/api/logout", { method: "POST" }); window.location.href = "/login"; }} className="text-gray-300 hover:text-red-500 transition cursor-pointer">Desconectar / Sair</button>
       </div>
     </div>
   );
