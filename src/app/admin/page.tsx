@@ -207,6 +207,9 @@ export default function AdminPage() {
                 <a href="/admin/kpis" className="flex items-center text-sm font-bold bg-blue-50 text-blue-700 px-4 py-2 rounded shadow-sm hover:bg-blue-100 transition">
                     📊 Dashboards KPIs
                 </a>
+                <a href="/admin/calculadora" className="flex items-center text-sm font-bold bg-yellow-50 text-yellow-700 px-4 py-2 rounded shadow-sm hover:bg-yellow-100 transition">
+                    ⚡ Calculadora Elétrica
+                </a>
                 <a href="/admin/status" className="flex items-center text-sm font-bold bg-gray-100 text-gray-700 px-4 py-2 rounded shadow-sm hover:bg-gray-200 transition">
                     <Settings className="w-4 h-4 mr-2" /> Status Customizados
                 </a>
