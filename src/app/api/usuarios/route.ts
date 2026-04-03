@@ -15,7 +15,10 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const { username, password, role } = await req.json();
+    const body = await req.json();
+    const username = (body.username || "").trim();
+    const password = (body.password || "").trim();
+    const role = body.role;
     if (!username || !password || !role) return NextResponse.json({ success: false, error: "Preencha tudo" }, { status: 400 });
 
     const hashedPassword = await bcrypt.hash(password, 10);
