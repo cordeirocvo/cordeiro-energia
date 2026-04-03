@@ -254,8 +254,8 @@ export default function CalculadoraPage() {
             </h1>
             <p className="text-blue-200 text-sm mt-1">NBR 5410 • NBR 5419-3 • NBR 16690 — Cordeiro Energia</p>
           </div>
-          <a href="/admin" className="text-sm bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-semibold transition">
-            ← Painel Admin
+          <a href="/admin/portal" className="text-sm bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-semibold transition">
+            ← Portal Admin
           </a>
         </div>
       </div>

@@ -35,7 +35,7 @@ export async function POST(req: Request) {
     const token = jwt.sign({ id: user.id, username: user.username, role: user.role }, JWT_SECRET, { expiresIn: "12h" });
 
     // Redirecionamento dinâmico por perfil
-    let redirectUrl = "/admin";
+    let redirectUrl = "/admin/portal"; // ADMIN → Portal de seleção
     if (user.role === "TV") redirectUrl = "/tv";
     if (user.role === "COMUM") redirectUrl = "/publico";
 
