@@ -199,9 +199,14 @@ export default function AdminPage() {
         
         {/* NAV BAR INTERNA */}
         <div className="flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md mb-8 border border-gray-200">
-            <h1 className="text-3xl font-extrabold text-brand-blue tracking-tight mb-4 md:mb-0">
-               Painel <span className="text-brand-orange">Administrativo</span>
-            </h1>
+            <div className="flex items-center gap-4 mb-4 md:mb-0">
+               <div className="bg-white p-2 rounded-lg shadow-sm border">
+                  <img src="/logo.png" alt="Logo" className="h-10 object-contain" />
+               </div>
+               <h1 className="text-3xl font-extrabold text-brand-blue tracking-tight">
+                  Painel <span className="text-brand-orange">Administrativo</span>
+               </h1>
+            </div>
             
             <div className="flex flex-wrap gap-3">
                 <a href="/admin/kpis" className="flex items-center text-sm font-bold bg-blue-50 text-blue-700 px-4 py-2 rounded shadow-sm hover:bg-blue-100 transition">

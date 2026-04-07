@@ -17,6 +17,18 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     // we can save them as bytes using Buffer.from, but Prisma can store them as strings or bytes.
     // If Prisma is expecting Bytes, we should parse it. For simplicity in MVP, if it's base64, save it.
     let dataUpdate = { ...body };
+    
+    // Remover campos que não podem ser alterados ou que o Prisma gerencia
+    delete dataUpdate.id;
+    delete dataUpdate.createdAt;
+    delete dataUpdate.updatedAt;
+    delete dataUpdate.isCriticalParecer;
+    delete dataUpdate.diaPrevNum;
+
+    if (dataUpdate.dataSolicitacao) {
+        dataUpdate.dataSolicitacao = new Date(dataUpdate.dataSolicitacao);
+    }
+    
     if (dataUpdate.anexoFotos && typeof dataUpdate.anexoFotos === 'string') {
         dataUpdate.anexoFotos = Buffer.from(dataUpdate.anexoFotos, 'base64');
     }

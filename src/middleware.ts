@@ -23,12 +23,11 @@ export function middleware(request: NextRequest) {
      } catch(e) {}
   }
 
-  // Lógica de Redirecionamento Autenticado
-  if (token && (path === '/login' || path === '/')) {
-      if (role === 'TV') return NextResponse.redirect(new URL('/tv', request.nextUrl));
-      if (role === 'COMUM') return NextResponse.redirect(new URL('/publico', request.nextUrl));
-      return NextResponse.redirect(new URL('/admin', request.nextUrl));
+  // Se acessar a raiz, força ir para o login primeiro
+  if (path === '/') {
+      return NextResponse.redirect(new URL('/login', request.nextUrl));
   }
+
 
   // Proteção de Rota Restrita (RBAC)
   if (path.startsWith('/admin') && role !== 'ADMIN') {
