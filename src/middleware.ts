@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
   // Apenas rotas baseadas em sistema são abertas
-  const isPublicPath = path === '/login' || path.startsWith('/api/login');
+  const isPublicPath = path === '/login' || path.startsWith('/api/login') || path === '/logo.png';
 
   const token = request.cookies.get('auth_token')?.value || '';
 
