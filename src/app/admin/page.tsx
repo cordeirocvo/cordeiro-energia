@@ -225,6 +225,9 @@ export default function AdminPage() {
                 <button onClick={handleLogout} className="flex items-center text-sm bg-red-100 text-red-600 px-4 py-2 rounded shadow-sm font-bold hover:bg-red-200 transition">
                     <LogOut className="w-4 h-4 mr-2" /> Sair
                 </button>
+                <a href="/" className="flex items-center text-sm bg-brand-blue text-white px-4 py-2 rounded shadow font-bold hover:bg-blue-800 transition">
+                    🏠 Voltar ao Portal
+                </a>
             </div>
         </div>
 
@@ -436,7 +439,7 @@ export default function AdminPage() {
                       <div className="sticky bottom-0 bg-gray-50 pt-4 border-t border-gray-200 mt-6 flex justify-end">
                           <button type="button" onClick={() => setSelectedInstalacao(null)} className="mr-4 px-6 py-3 font-bold text-gray-400 hover:text-gray-600">Voltar sem Salvar</button>
                           <button type="submit" disabled={saving} className="bg-brand-blue hover:bg-blue-800 text-white font-extrabold py-3 px-8 rounded-lg shadow-md transition transform hover:-translate-y-1 disabled:opacity-50">
-                              {saving ? 'Criptografando para Nuvem...' : 'Salvar Cliente (Dispara Webhook N8N)'}
+                              {saving ? 'Criptografando para Nuvem...' : 'Salvar Cliente'}
                           </button>
                       </div>
                   </form>

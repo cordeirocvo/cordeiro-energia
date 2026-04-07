@@ -34,8 +34,7 @@ export async function POST(req: Request) {
       }
     });
 
-    // Disparar fluxo N8N do WhatsApp (e.g. confirmar recebimento)
-    pushToN8N(novaAtividade, 'NOVA_SOLICITACAO').catch(console.error);
+    // Cadastro concluído sem disparo externo (N8N paralizado)
 
     return NextResponse.json({ success: true, data: { id: novaAtividade.id } });
   } catch (error: any) {

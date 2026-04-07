@@ -286,7 +286,7 @@ export function calcShortCircuit(input: ShortCircuitInput): ShortCircuitResult {
   // S = Icc * sqrt(t) / k  — assume t = 0.2s (tempo de atuação do disjuntor)
   const k = input.insulation === 'PVC' ? 115 : 143;
   const tDisj = 0.2; // s
-  const thermalSection = (Icc_3F_ponto * 1000 * Math.sqrt(tDisj)) / k;
+  const thermalSection = (Icc_3F_ponto * Math.sqrt(tDisj)) / k;
   const thermalSectionCommercial = COMMERCIAL_SECTIONS.find(s => s >= thermalSection) || 240;
 
   if (Icc_max_3F > 25) warnings.push('Corrente de curto elevada (>25kA). Verifique uso de limitadores ou disjuntores de alta capacidade.');
@@ -366,6 +366,7 @@ export interface DPSInput {
   locationType: 'TIPO1' | 'TIPO2' | 'TIPO3';
   hasLPZ0A?: boolean;       // Zona de proteção contra raio (SPDA instalado)
   equipmentUw: number;      // kV tensão suportável dos equipamentos
+  spdaMaterial?: 'Cu' | 'Al' | 'AcoGalv'; // Material do SPDA
 }
 
 export interface DPSResult {
@@ -377,6 +378,8 @@ export interface DPSResult {
   waveform: string;
   coordenacao: string;
   warnings: string[];
+  cableGuidance: string;
+  characteristics: string;
 }
 
 export function calcDPS(input: DPSInput): DPSResult {
@@ -403,6 +406,11 @@ export function calcDPS(input: DPSInput): DPSResult {
     waveform = '8/20 μs (proteção local)';
   }
 
+  // Info de cabos conforme NBR 5419/26
+  const cableGuidance = input.locationType === 'TIPO1' 
+    ? 'Cabo de entrada/saída: mínimo 16mm² (Cobre) conforme NBR 5419-4.'
+    : 'Cabo de conexão: mínimo 4mm² a 6mm² (Cobre).';
+
   // Verificação de coordenação
   const equipUpOk = up <= input.equipmentUw * 0.8;
   if (!equipUpOk) warnings.push(`Nível de proteção Up (${up}kV) pode ser insuficiente para equipamentos com Uw = ${input.equipmentUw}kV. Considere proteção adicional Tipo 3.`);
@@ -422,6 +430,8 @@ export function calcDPS(input: DPSInput): DPSResult {
     waveform,
     coordenacao,
     warnings,
+    cableGuidance,
+    characteristics: `In=${inNominal}kA, Imax=${imaxPico}kA, Up=${up}kV, Uc=${Math.ceil(Uc_min)}V`,
   };
 }
 

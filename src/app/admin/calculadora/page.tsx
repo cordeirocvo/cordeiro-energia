@@ -11,10 +11,13 @@ import {
 } from "@/lib/electrical-calc";
 
 // ─── COMPONENTE AUXILIAR ─────────────────────────────────────────
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, tooltip }: { label: string; children: React.ReactNode; tooltip?: string }) {
   return (
-    <div>
-      <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider">{label}</label>
+    <div title={tooltip}>
+      <label className="block text-xs font-bold text-gray-600 mb-1 uppercase tracking-wider flex justify-between">
+        {label}
+        {tooltip && <span className="text-brand-orange cursor-help">ⓘ</span>}
+      </label>
       {children}
     </div>
   );
@@ -120,20 +123,29 @@ function generatePDF(title: string, inputs: Record<string, string>, results: Rec
   // Resultados
   doc.setTextColor(26, 58, 107);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text("RESULTADOS", 14, y);
-  y += 8;
+  doc.setFontSize(12); // Aumentado para 12 conforme solicitado
+  doc.text("RESULTADOS TÉCNICOS", 14, y);
+  y += 10;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
-  doc.setTextColor(60, 60, 60);
+  doc.setFontSize(12); // Texto em tamanho 12
+  doc.setTextColor(40, 40, 40);
   for (const [key, val] of Object.entries(results)) {
+    // Simulação de texto justificado (alinhamento limpo)
     doc.text(`${key}:`, 14, y);
     doc.setFont("helvetica", "bold");
-    doc.text(String(val), 90, y);
+    doc.text(String(val), 100, y);
     doc.setFont("helvetica", "normal");
-    y += 7;
+    y += 9;
     if (y > 270) { doc.addPage(); y = 20; }
   }
+
+  // Notas Adicionais (Justificadas)
+  y += 5;
+  doc.setFontSize(10);
+  doc.setTextColor(100, 100, 100);
+  const notes = "Este relatório segue as prescrições das normas NBR 5410, NBR 5419 e NBR 16690. Os cálculos consideram condições padrão de instalação e devem ser validados por um engenheiro eletricista responsável antes da execução.";
+  const splitNotes = doc.splitTextToSize(notes, 180);
+  doc.text(splitNotes, 14, y);
 
   // Rodapé
   const total = doc.getNumberOfPages();
@@ -231,6 +243,11 @@ export default function CalculadoraPage() {
     { value: "TIPO2", label: "Tipo 2 — Quadros" },
     { value: "TIPO3", label: "Tipo 3 — Equipamentos" },
   ];
+  const materialSpdaOpts = [
+    { value: "Cu", label: "Cobre (Cu)" },
+    { value: "Al", label: "Alumínio (Al)" },
+    { value: "AcoGalv", label: "Aço Galvanizado (Cordoalha)" },
+  ];
   const netOpts = [{ value: "TN-S", label: "TN-S" }, { value: "TN-C", label: "TN-C" }, { value: "TT", label: "TT" }, { value: "IT", label: "IT" }];
 
   // ── TABS ──────────────────────────
@@ -248,14 +265,19 @@ export default function CalculadoraPage() {
       {/* HEADER */}
       <div className="bg-brand-blue text-white px-6 py-5 shadow-lg">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-black tracking-tight">
-              ⚡ Calculadora <span className="text-brand-orange">Elétrica</span>
-            </h1>
-            <p className="text-blue-200 text-sm mt-1">NBR 5410 • NBR 5419-3 • NBR 16690 — Cordeiro Energia</p>
+          <div className="flex items-center gap-4">
+            <div className="bg-white p-2 rounded-lg">
+               <img src="/logo.png" alt="Logo" className="h-10 object-contain" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-black tracking-tight">
+                ⚡ Calculadora <span className="text-brand-orange">Elétrica</span>
+              </h1>
+              <p className="text-blue-200 text-sm mt-1">NBR 5410 • NBR 5419-4 • NBR 16690 — Cordeiro Energia</p>
+            </div>
           </div>
-          <a href="/admin/portal" className="text-sm bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg font-semibold transition">
-            ← Portal Admin
+          <a href="/admin" className="bg-brand-orange hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg flex items-center gap-2">
+            ← Voltar ao Painel ADM
           </a>
         </div>
       </div>
@@ -285,45 +307,45 @@ export default function CalculadoraPage() {
               <h2 className="text-lg font-black text-brand-blue border-b border-orange-300 pb-2 border-b-4">Dimensionamento de Cabos</h2>
               <p className="text-xs text-gray-500">Base: ABNT NBR 5410:2004 — Tabelas 36, 38, 40, 42</p>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Potência (W)">
+                <Field label="Potência (W)" tooltip="Potência total da carga em Watts.">
                   <Input type="number" value={cableInput.power} onChange={e => setCableInput(p => ({ ...p, power: +e.target.value, current: undefined }))} />
                 </Field>
-                <Field label="OU Corrente (A)">
+                <Field label="OU Corrente (A)" tooltip="Corrente nominal de projeto (Ib).">
                   <Input type="number" placeholder="Opcional" onChange={e => setCableInput(p => ({ ...p, current: +e.target.value || undefined, power: undefined }))} />
                 </Field>
-                <Field label="Tensão (V)">
+                <Field label="Tensão (V)" tooltip="Tensão de operação do circuito.">
                   <Select options={voltageOpts} value={cableInput.voltage} onChange={e => setCableInput(p => ({ ...p, voltage: +e.target.value }))} />
                 </Field>
-                <Field label="Sistema">
+                <Field label="Sistema" tooltip="Configuração de fases do sistema elétrico.">
                   <Select options={systemOpts} value={cableInput.system} onChange={e => setCableInput(p => ({ ...p, system: e.target.value as any }))} />
                 </Field>
-                <Field label="Fator de Potência">
+                <Field label="Fator de Potência" tooltip="Cosseno de fi (cos φ) da carga.">
                   <Input type="number" step="0.01" min="0.5" max="1" value={cableInput.powerFactor} onChange={e => setCableInput(p => ({ ...p, powerFactor: +e.target.value }))} />
                 </Field>
-                <Field label="Comprimento (m)">
+                <Field label="Comprimento (m)" tooltip="Distância total do percurso do cabo (unidirecional).">
                   <Input type="number" value={cableInput.length} onChange={e => setCableInput(p => ({ ...p, length: +e.target.value }))} />
                 </Field>
-                <Field label="Método Instalação">
+                <Field label="Método Instalação" tooltip="Forma como o cabo será instalado conforme Tabela 28 da NBR 5410.">
                   <Select options={methodOpts} value={cableInput.method} onChange={e => setCableInput(p => ({ ...p, method: e.target.value as any }))} />
                 </Field>
-                <Field label="Material">
+                <Field label="Material" tooltip="Tipo de metal condutor (Cobre ou Alumínio).">
                   <Select options={materialOpts} value={cableInput.material} onChange={e => setCableInput(p => ({ ...p, material: e.target.value as any }))} />
                 </Field>
-                <Field label="Isolação">
+                <Field label="Isolação" tooltip="Material isolante do cabo (影响 a temperatura máxima suportada).">
                   <Select options={insulationOpts} value={cableInput.insulation} onChange={e => setCableInput(p => ({ ...p, insulation: e.target.value as any }))} />
                 </Field>
-                <Field label="Temp. Ambiente (°C)">
+                <Field label="Temp. Ambiente (°C)" tooltip="Temperatura média do ar no local da instalação.">
                   <Input type="number" value={cableInput.ambientTemp} onChange={e => setCableInput(p => ({ ...p, ambientTemp: +e.target.value }))} />
                 </Field>
-                <Field label="Circuitos Agrupados">
+                <Field label="Circuitos Agrupados" tooltip="Número de circuitos que compartilham o mesmo eletroduto ou calha.">
                   <Input type="number" min="1" max="20" value={cableInput.groupedCircuits} onChange={e => setCableInput(p => ({ ...p, groupedCircuits: +e.target.value }))} />
                 </Field>
-                <Field label="Queda Máx. (%)">
+                <Field label="Queda Máx. (%)" tooltip="Limite de queda de tensão permitido conforme NBR 5410.">
                   <Select options={[{ value: "3", label: "3% (iluminação)" }, { value: "4", label: "4% (distribuição)" }, { value: "5", label: "5% (forças motrizes)" }]}
                     value={cableInput.maxVoltageDrop}
                     onChange={e => setCableInput(p => ({ ...p, maxVoltageDrop: +e.target.value }))} />
                 </Field>
-                <Field label="Condutores Carregados">
+                <Field label="Condutores Carregados" tooltip="Número de condutores que transportam corrente no circuito.">
                   <Select options={[{ value: "2", label: "2 condutores" }, { value: "3", label: "3 condutores" }]}
                     value={cableInput.phases} onChange={e => setCableInput(p => ({ ...p, phases: +e.target.value as any }))} />
                 </Field>
@@ -459,25 +481,25 @@ export default function CalculadoraPage() {
               <h2 className="text-lg font-black text-red-700 border-b-4 border-red-400 pb-2">Corrente de Curto-Circuito</h2>
               <p className="text-xs text-gray-500">Base: ABNT NBR 5410 item 5.3 / IEC 60909</p>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Tensão (V)">
+                <Field label="Tensão (V)" tooltip="Tensão de linha do sistema.">
                   <Select options={voltageOpts} value={ccInput.voltage} onChange={e => setCcInput(p => ({ ...p, voltage: +e.target.value }))} />
                 </Field>
-                <Field label="Sistema">
+                <Field label="Sistema" tooltip="Tipo de ligação (Trifásico ou Monofásico).">
                   <Select options={systemOpts} value={ccInput.system} onChange={e => setCcInput(p => ({ ...p, system: e.target.value as any }))} />
                 </Field>
-                <Field label="Potência Trafo (kVA)">
+                <Field label="Potência Trafo (kVA)" tooltip="Potência nominal do transformador de alimentação.">
                   <Select options={[15,30,45,75,112.5,150,225,300,500,750,1000].map(v => ({ value: String(v), label: v + " kVA" }))}
                     value={ccInput.transformerKVA} onChange={e => setCcInput(p => ({ ...p, transformerKVA: +e.target.value }))} />
                 </Field>
-                <Field label="Ucc do Trafo (%)">
+                <Field label="Ucc do Trafo (%)" tooltip="Tensão de curto-circuito percentual do transformador (Típico: 4%).">
                   <Select options={[{ value: "3.5", label: "3.5%" }, { value: "4", label: "4%" }, { value: "5", label: "5%" }, { value: "6", label: "6%" }, { value: "8", label: "8%" }]}
                     value={ccInput.transformerUcc} onChange={e => setCcInput(p => ({ ...p, transformerUcc: +e.target.value }))} />
                 </Field>
-                <Field label="Seção do Cabo (mm²)">
+                <Field label="Seção do Cabo (mm²)" tooltip="Bitola do cabo do circuito que se deseja calcular o curto no ponto.">
                   <Select options={[1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240].map(s => ({ value: String(s), label: s + " mm²" }))}
                     value={ccInput.cableSection} onChange={e => setCcInput(p => ({ ...p, cableSection: +e.target.value }))} />
                 </Field>
-                <Field label="Comprimento (m)">
+                <Field label="Comprimento (m)" tooltip="Distância entre o barramento principal e o ponto de curto.">
                   <Input type="number" value={ccInput.cableLength} onChange={e => setCcInput(p => ({ ...p, cableLength: +e.target.value }))} />
                 </Field>
                 <Field label="Material">
@@ -537,16 +559,16 @@ export default function CalculadoraPage() {
               <h2 className="text-lg font-black text-orange-700 border-b-4 border-orange-400 pb-2">Dimensionamento de Disjuntores</h2>
               <p className="text-xs text-gray-500">ABNT NBR IEC 60947-2 • Ib ≤ In ≤ Iz e I₂ ≤ 1.45·Iz</p>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Corrente de carga Ib (A)">
+                <Field label="Corrente de carga Ib (A)" tooltip="Corrente nominal que circula no circuito em regime normal.">
                   <Input type="number" value={cbInput.loadCurrent} onChange={e => setCbInput(p => ({ ...p, loadCurrent: +e.target.value }))} />
                 </Field>
-                <Field label="Ampacidade do cabo Iz (A)">
+                <Field label="Ampacidade do cabo Iz (A)" tooltip="Máxima corrente que o cabo suporta nas condições de instalação.">
                   <Input type="number" value={cbInput.cableAmpacity} onChange={e => setCbInput(p => ({ ...p, cableAmpacity: +e.target.value }))} />
                 </Field>
-                <Field label="Icc máximo (kA)">
+                <Field label="Icc máximo (kA)" tooltip="Corrente de curto-circuito máxima no ponto de instalação.">
                   <Input type="number" step="0.5" value={cbInput.iccMax} onChange={e => setCbInput(p => ({ ...p, iccMax: +e.target.value }))} />
                 </Field>
-                <Field label="Tipo de carga">
+                <Field label="Tipo de carga" tooltip="Influencia na escolha da curva do disjuntor (ex: motores exigem D).">
                   <Select options={[
                     { value: "resistivo", label: "Resistivo" },
                     { value: "iluminacao", label: "Iluminação" },
@@ -554,7 +576,7 @@ export default function CalculadoraPage() {
                     { value: "capacitor", label: "Capacitor" },
                   ]} value={cbInput.loadType} onChange={e => setCbInput(p => ({ ...p, loadType: e.target.value as any }))} />
                 </Field>
-                <Field label="Curva do disjuntor">
+                <Field label="Curva do disjuntor" tooltip="Curva característica de disparo magnético (B, C ou D).">
                   <Select options={curveOpts} value={cbInput.curve} onChange={e => setCbInput(p => ({ ...p, curve: e.target.value as any }))} />
                 </Field>
               </div>
@@ -593,17 +615,17 @@ export default function CalculadoraPage() {
               <h2 className="text-lg font-black text-purple-700 border-b-4 border-purple-400 pb-2">Dimensionamento de DPS</h2>
               <p className="text-xs text-gray-500">Base: ABNT NBR 5419-3 (IEC 62305-3/4)</p>
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Localização do DPS">
+                <Field label="Localização do DPS" tooltip="Posição do dispositivo na instalação conforme NBR 5419/5410.">
                   <Select options={dpsTypeOpts} value={dpsInput.locationType} onChange={e => setDpsInput(p => ({ ...p, locationType: e.target.value as any }))} />
                 </Field>
-                <Field label="Tipo de rede">
+                <Field label="Tipo de rede" tooltip="Esquema de aterramento da instalação (TN-S, TT, etc).">
                   <Select options={netOpts} value={dpsInput.installationType} onChange={e => setDpsInput(p => ({ ...p, installationType: e.target.value as any }))} />
                 </Field>
-                <Field label="Tensão nominal (V)">
-                  <Select options={[{ value: "220", label: "220 V" }, { value: "380", label: "380 V" }]}
+                <Field label="Tensão nominal (V)" tooltip="Tensão nominal fase-neutro ou fase-fase (127V ou 220V).">
+                  <Select options={[{ value: "127", label: "127 V" }, { value: "220", label: "220 V" }, { value: "380", label: "380 V" }]}
                     value={dpsInput.voltage} onChange={e => setDpsInput(p => ({ ...p, voltage: +e.target.value }))} />
                 </Field>
-                <Field label="Uw equipamentos (kV)">
+                <Field label="Uw equipamentos (kV)" tooltip="Tensão suportável de impulso dos equipamentos a serem protegidos.">
                   <Select options={[
                     { value: "0.8", label: "0.8 kV (eletrônico)" },
                     { value: "1.5", label: "1.5 kV (sensível)" },
@@ -613,10 +635,17 @@ export default function CalculadoraPage() {
                   ]} value={dpsInput.equipmentUw} onChange={e => setDpsInput(p => ({ ...p, equipmentUw: +e.target.value }))} />
                 </Field>
               </div>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={dpsInput.hasLPZ0A} onChange={e => setDpsInput(p => ({ ...p, hasLPZ0A: e.target.checked }))} />
-                SPDA (para-raios) instalado na estrutura
-              </label>
+              <div className="grid grid-cols-1 gap-3">
+                <label className="flex items-center gap-2 text-sm text-gray-700">
+                  <input type="checkbox" checked={dpsInput.hasLPZ0A} onChange={e => setDpsInput(p => ({ ...p, hasLPZ0A: e.target.checked }))} />
+                  SPDA (para-raios) instalado na estrutura
+                </label>
+                {dpsInput.hasLPZ0A && (
+                  <Field label="Material do SPDA" tooltip="Influencia na seção dos condutores de aterramento.">
+                    <Select options={materialSpdaOpts} value={dpsInput.spdaMaterial} onChange={e => setDpsInput(p => ({ ...p, spdaMaterial: e.target.value as any }))} />
+                  </Field>
+                )}
+              </div>
               <button onClick={handleDPS} className="w-full bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition shadow">
                 ⛈️ Dimensionar DPS
               </button>
@@ -630,9 +659,13 @@ export default function CalculadoraPage() {
                   <Row label="Corrente de descarga máx (Imax)" value={dpsResult.imaxPico + " kA"} />
                   <Row label="Nível de proteção (Up)" value={dpsResult.up + " kV"} />
                   <Row label="Forma de onda" value={dpsResult.waveform} />
-                  <div className="bg-purple-50 rounded-lg p-3 mt-2">
-                    <p className="text-xs font-semibold text-purple-700">📍 Localização:</p>
-                    <p className="text-xs text-purple-600 mt-1">{dpsResult.coordenacao}</p>
+                  <div className="bg-purple-100 rounded-lg p-4 mt-2 border border-purple-200">
+                    <p className="text-xs font-bold text-purple-900 uppercase">📋 Especificações Técnicas:</p>
+                    <p className="text-sm font-mono text-purple-800 mt-1">{dpsResult.characteristics}</p>
+                    <p className="text-xs text-purple-700 mt-2 font-semibold">📍 Coordenação:</p>
+                    <p className="text-xs text-purple-600 mt-1 italic">{dpsResult.coordenacao}</p>
+                    <p className="text-xs text-red-600 mt-3 font-bold border-t border-red-200 pt-2">📏 Requisito de Cabagem (NBR 5419-4):</p>
+                    <p className="text-xs text-red-700 mt-1">{dpsResult.cableGuidance}</p>
                   </div>
                 </ResultCard>
                 {dpsResult.warnings.length > 0 && (
@@ -685,16 +718,16 @@ export default function CalculadoraPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Consumo Médio (kWh/mês)">
+                <Field label="Consumo Médio (kWh/mês)" tooltip="Média mensal de consumo de energia da unidade consumidora.">
                   <Input type="number" value={solarInput.monthlyConsumption} onChange={e => setSolarInput(p => ({ ...p, monthlyConsumption: +e.target.value }))} />
                 </Field>
-                <Field label="Potência do Módulo (Wp)">
+                <Field label="Potência do Módulo (Wp)" tooltip="Potência nominal de cada painel solar (STC).">
                   <Input type="number" value={solarInput.modulePower} onChange={e => setSolarInput(p => ({ ...p, modulePower: +e.target.value }))} />
                 </Field>
-                <Field label="Performance Ratio">
+                <Field label="Performance Ratio" tooltip="Eficiência global do sistema (perdas em cabos, inversores, sujeira).">
                   <Input type="number" step="0.01" min="0.6" max="0.95" value={solarInput.performanceRatio} onChange={e => setSolarInput(p => ({ ...p, performanceRatio: +e.target.value }))} />
                 </Field>
-                <Field label="Tensão rede (V)">
+                <Field label="Tensão rede (V)" tooltip="Tensão de conexão do inversor com a rede da concessionária.">
                   <Select options={[{ value: "220", label: "220 V" }, { value: "380", label: "380 V" }]}
                     value={solarInput.systemVoltage} onChange={e => setSolarInput(p => ({ ...p, systemVoltage: +e.target.value as any }))} />
                 </Field>

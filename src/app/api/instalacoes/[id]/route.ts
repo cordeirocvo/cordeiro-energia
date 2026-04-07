@@ -29,8 +29,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       data: dataUpdate,
     });
     
-    // Disparar Webhook assincronamente
-    pushToN8N(updated, 'UPDATE_ATIVIDADE').catch(console.error);
+    // Sincronização concluída (N8N paralizado)
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {

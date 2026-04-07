@@ -4,13 +4,12 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
-  // Apenas rotas baseadas em sistema são abertas
-  const isPublicPath = path === '/login' || path.startsWith('/api/login') || path === '/logo.png';
+  // Apenas o login e sua API são públicos. Tudo o mais exige autenticação.
+  const isPublicPath = path === '/login' || path.startsWith('/api/login');
 
   const token = request.cookies.get('auth_token')?.value || '';
 
-  // Sem token = Bloquedo (exceto API ou Login)
-  if (!token && !isPublicPath && !path.startsWith('/api/sync') && !path.startsWith('/api/publico')) {
+  if (!token && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.nextUrl));
   }
 
