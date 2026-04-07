@@ -27,9 +27,6 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
-.env.development.local
-.env.test.local
-.env.production.local
 
 # vercel
 .vercel
@@ -37,3 +34,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ---------------------------------------------------------
+# BLOQUEIO DE ARQUIVOS PESADOS (ANTI-BLOAT)
+# ---------------------------------------------------------
+*.pdf
+*.csv
+*.xml
+*.zip
+*.xls
+*.xlsx
+*.crdownload
+*.mp4
+*.mov
+*.rar
+/temp_backup/
+/backup_cordeiro/

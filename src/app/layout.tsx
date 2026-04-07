@@ -4,9 +4,14 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
+export const viewport = {
+  themeColor: "#fbc531",
+};
+
 export const metadata: Metadata = {
   title: "Cordeiro Energia",
   description: "Gestão a Vista e Acompanhamento de Serviços",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({

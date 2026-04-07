@@ -51,7 +51,7 @@ export default function PublicForm() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4 sm:p-8">
       <div className="w-full max-w-lg flex justify-end mb-2">
-         <button onClick={() => { document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"; window.location.href = "/login"; }} className="text-gray-500 font-bold hover:text-red-600">Sair do Sistema</button>
+         <button onClick={async () => { await fetch("/api/logout", { method: "POST" }); window.location.href = "/login"; }} className="text-gray-500 font-bold hover:text-red-600">Sair do Sistema</button>
       </div>
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg border-t-8 border-brand-orange overflow-hidden">
         

@@ -10,7 +10,6 @@ datasource db {
 
 model PlanilhaInstalacao {
   id                    String   @id @default(uuid())
-  // Original Fields
   cliente               String?
   diaPrev               String?
   instalacao            String?
@@ -31,10 +30,8 @@ model PlanilhaInstalacao {
   telhado               String?
   telefoneOriginal      String?
   vendedorOriginal      String?
-
-  // Added Fields
   observacao           String?
-  anexoFotos           Bytes?   // Armazenando no BD conforme solicitado
+  anexoFotos           Bytes?   
   anexoArquivos        Bytes?
   dataSolicitacao      DateTime @default(now())
   solicitacao          String?
@@ -43,7 +40,6 @@ model PlanilhaInstalacao {
   telefoneCliente      String?
   cidade               String?
   dataPrevista         String?
-
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }
@@ -52,7 +48,7 @@ model User {
   id       String @id @default(uuid())
   username String @unique
   password String
-  role     String @default("COMUM") // 'ADMIN', 'COMUM', 'TV'
+  role     String @default("COMUM")
 }
 
 model StatusOption {
@@ -61,3 +57,68 @@ model StatusOption {
   createdAt DateTime @default(now())
 }
 
+// ──────────────────────────────────────────────────────────
+// NOVOS MODELOS FSM ( FIELD SERVICE MANAGEMENT )
+// ──────────────────────────────────────────────────────────
+
+model Obra {
+  id            String          @id @default(uuid())
+  nome          String
+  cliente       String
+  endereco      String?
+  telefone      String?
+  ordensServico OrdemServico[]
+  createdAt     DateTime        @default(now())
+}
+
+model OrdemServico {
+  id                String       @id @default(uuid())
+  numeroOS          Int          @unique @default(autoincrement())
+  obraId            String
+  obra              Obra         @relation(fields: [obraId], references: [id])
+  status            String       @default("PENDENTE") // PENDENTE, EM_TRANSITO, EM_EXECUCAO, FINALIZADA
+  servicoEscopo     String?
+  dataPrevista      DateTime?
+  dataFinalizacao   DateTime?
+  observacoesFinais String?
+  assinaturaCliente String?      // Base64
+  assinaturaTecnico String?      // Base64
+  tecnicos          TecnicoNaOS[]
+  fotos             FotoOS[]
+  gpsLogs           GPSLog[]
+  createdAt         DateTime     @default(now())
+}
+
+model Tecnico {
+  id            String        @id @default(uuid())
+  nome          String
+  whatsapp      String?
+  especialidade String?
+  ordensServico TecnicoNaOS[]
+}
+
+model TecnicoNaOS {
+  id        String       @id @default(uuid())
+  osId      String
+  tecnicoId String
+  os        OrdemServico @relation(fields: [osId], references: [id], onDelete: Cascade)
+  tecnico   Tecnico      @relation(fields: [tecnicoId], references: [id], onDelete: Cascade)
+}
+
+model FotoOS {
+  id        String       @id @default(uuid())
+  osId      String
+  os        OrdemServico @relation(fields: [osId], references: [id], onDelete: Cascade)
+  urlFoto   String       // Base64 no Supabase (temporário) ou link bucket
+  etapaObra String?
+  createdAt DateTime     @default(now())
+}
+
+model GPSLog {
+  id        String       @id @default(uuid())
+  osId      String
+  os        OrdemServico @relation(fields: [osId], references: [id], onDelete: Cascade)
+  latitude  Float
+  longitude Float
+  createdAt DateTime     @default(now())
+}

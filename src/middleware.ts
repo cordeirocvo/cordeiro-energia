@@ -18,8 +18,8 @@ export function middleware(request: NextRequest) {
   if (token) {
      try {
        // Extrai JWT Payload no Edge
-       const payloadBase64 = token.split('.')[1];
-       const decodedJson = Buffer.from(payloadBase64, 'base64').toString();
+       const payloadBase64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+       const decodedJson = atob(payloadBase64);
        role = JSON.parse(decodedJson).role;
      } catch(e) {}
   }

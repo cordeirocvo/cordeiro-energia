@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { AlertTriangle, Search, Filter, Settings, Users, LogOut } from "lucide-react";
+import { AlertTriangle, Search, Filter, Settings, Users, LogOut, PlusCircle, X } from "lucide-react";
 
 // Helpers
 function parseDateBR(dateStr: string | null | undefined) {
@@ -34,6 +34,8 @@ export default function AdminPage() {
   const [selectedInstalacao, setSelectedInstalacao] = useState<any>(null);
   const [saving, setSaving] = useState(false);
   const [statusOptions, setStatusOptions] = useState<any[]>([]);
+  const [showNovaAtividade, setShowNovaAtividade] = useState(false);
+  const [savingNova, setSavingNova] = useState(false);
 
   // Filtros Globais
   const [pesquisaCliente, setPesquisaCliente] = useState("");
@@ -106,6 +108,42 @@ export default function AdminPage() {
     setSyncing(false);
   };
 
+  const handleNovaAtividade = async (e: any) => {
+    e.preventDefault();
+    setSavingNova(true);
+    const formData = new FormData(e.target);
+    const payload: any = Object.fromEntries(formData);
+
+    const fotoFile = e.target.foto?.files[0];
+    if (fotoFile) {
+      const reader = new FileReader();
+      payload.anexoFotos = await new Promise((res, rej) => {
+        reader.readAsDataURL(fotoFile);
+        reader.onload = () => res((reader.result as string).split(',')[1]);
+        reader.onerror = rej;
+      });
+    }
+
+    try {
+      const res = await fetch('/api/publico', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        alert('Atividade registrada com sucesso!');
+        setShowNovaAtividade(false);
+        e.target.reset();
+        fetchInstalacoes();
+      } else {
+        alert('Erro ao registrar atividade.');
+      }
+    } catch {
+      alert('Erro de conexão.');
+    }
+    setSavingNova(false);
+  };
+
   const handleUpdate = async (e: any) => {
       e.preventDefault();
       setSaving(true);
@@ -143,8 +181,8 @@ export default function AdminPage() {
 
   const hojeFormatado = new Date().toISOString().split("T")[0];
 
-  const handleLogout = () => {
-    document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+  const handleLogout = async () => {
+    await fetch("/api/logout", { method: "POST" });
     window.location.href = "/login";
   };
 
@@ -169,12 +207,18 @@ export default function AdminPage() {
                 <a href="/admin/kpis" className="flex items-center text-sm font-bold bg-blue-50 text-blue-700 px-4 py-2 rounded shadow-sm hover:bg-blue-100 transition">
                     📊 Dashboards KPIs
                 </a>
+                <a href="/admin/calculadora" className="flex items-center text-sm font-bold bg-yellow-50 text-yellow-700 px-4 py-2 rounded shadow-sm hover:bg-yellow-100 transition">
+                    ⚡ Calculadora Elétrica
+                </a>
                 <a href="/admin/status" className="flex items-center text-sm font-bold bg-gray-100 text-gray-700 px-4 py-2 rounded shadow-sm hover:bg-gray-200 transition">
                     <Settings className="w-4 h-4 mr-2" /> Status Customizados
                 </a>
                 <a href="/admin/usuarios" className="flex items-center text-sm font-bold bg-gray-100 text-gray-700 px-4 py-2 rounded shadow-sm hover:bg-gray-200 transition">
                     <Users className="w-4 h-4 mr-2" /> Senhas e Acessos
                 </a>
+                <button onClick={() => setShowNovaAtividade(true)} className="flex items-center text-sm bg-green-600 text-white px-4 py-2 rounded shadow font-bold hover:bg-green-700 transition">
+                    <PlusCircle className="w-4 h-4 mr-2" /> Nova Atividade
+                </button>
                 <button onClick={handleSync} disabled={syncing} className="flex items-center text-sm bg-brand-orange text-white px-4 py-2 rounded shadow font-bold hover:bg-orange-600 transition disabled:opacity-50">
                     {syncing ? '🔄 Baixando...' : '🔄 Sincronizar Google'}
                 </button>
@@ -398,6 +442,61 @@ export default function AdminPage() {
                   </form>
               </div>
           </div>
+      )}
+
+      {/* MODAL NOVA ATIVIDADE */}
+      {showNovaAtividade && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8">
+            <div className="flex justify-between items-center p-6 border-b bg-brand-blue text-white rounded-t-2xl">
+              <div>
+                <h2 className="text-2xl font-black tracking-wide uppercase">Nova Atividade</h2>
+                <p className="text-sm text-blue-100 mt-1">Registre uma nova instalação ou solicitação</p>
+              </div>
+              <button onClick={() => setShowNovaAtividade(false)} className="text-white hover:text-red-300 bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center font-bold text-xl transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleNovaAtividade} className="p-6 space-y-4 overflow-y-auto max-h-[70vh]">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Cliente *</label>
+                  <input name="cliente" required placeholder="Nome Completo / Empresa" className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Cidade *</label>
+                  <input name="cidade" required placeholder="Cidade da instalação" className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Endereço</label>
+                  <input name="endereco" placeholder="Rua, Número, Bairro" className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">Telefone / WhatsApp *</label>
+                  <input name="telefone" type="tel" required placeholder="(00) 00000-0000" className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Solicitação / Observações *</label>
+                <textarea name="solicitacao" rows={3} required placeholder="Descreva os detalhes da tarefa..." className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none"></textarea>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg border">
+                <label className="block text-sm font-bold text-gray-700 mb-2">📸 Anexar Foto (opcional)</label>
+                <input name="foto" type="file" accept="image/*" className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand-blue file:text-white hover:file:bg-blue-800" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">Data da Solicitação</label>
+                <input name="dataSolicitacao" type="date" defaultValue={hojeFormatado} className="w-full border p-3 rounded-lg bg-gray-50" />
+              </div>
+              <div className="flex justify-end gap-3 pt-2 border-t">
+                <button type="button" onClick={() => setShowNovaAtividade(false)} className="px-6 py-3 font-bold text-gray-500 hover:text-gray-700">Cancelar</button>
+                <button type="submit" disabled={savingNova} className="bg-green-600 hover:bg-green-700 text-white font-extrabold py-3 px-8 rounded-lg shadow-md transition disabled:opacity-50">
+                  {savingNova ? 'Salvando...' : '✓ Registrar Atividade'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
