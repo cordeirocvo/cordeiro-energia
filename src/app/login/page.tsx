@@ -29,8 +29,8 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border-t-8 border-brand-orange">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-brand-blue">Cordeiro Energia</h1>
-          <p className="text-gray-500 mt-2">Acesso Restrito ao Sistema</p>
+          <img src="/logo.png" alt="Cordeiro Energia Logo" className="mx-auto h-24 mb-4 object-contain" />
+          <p className="text-gray-500">Acesso Restrito ao Sistema</p>
         </div>
         
         {error && (
