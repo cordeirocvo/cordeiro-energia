@@ -27,6 +27,7 @@
     "pdf-parse": "^2.4.5",
     "react": "^18",
     "react-dom": "^18",
+    "react-signature-canvas": "^1.0.6",
     "tailwind-merge": "^2.3.0",
     "xlsx": "^0.18.5"
   },
@@ -38,6 +39,7 @@
     "@types/papaparse": "^5.5.2",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/react-signature-canvas": "^1.0.5",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
     "postcss": "^8",

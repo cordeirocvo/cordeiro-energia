@@ -50,3 +50,5 @@ next-env.d.ts
 *.rar
 /temp_backup/
 /backup_cordeiro/
+
+.vercel
