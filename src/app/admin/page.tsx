@@ -200,7 +200,7 @@ export default function AdminPage() {
           });
 
           if (res.ok) {
-              alert("Salvo com sucesso!");
+              // FECHAMENTO INSTANTÂNEO (UX Otimizada)
               setSelectedInstalacao(null);
               fetchInstalacoes();
           } else {

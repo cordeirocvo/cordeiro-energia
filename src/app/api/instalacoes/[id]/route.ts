@@ -7,14 +7,8 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     const { id } = params;
     const body = await req.json();
 
-    const current = await prisma.planilhaInstalacao.findUnique({ where: { id } });
-    if (!current) {
-      return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
-    }
-
-    // Debug Profundo
-    console.log(`[PUT] Recebendo atualização para ID: ${id}`);
-    console.log(`[PUT] Body recebido:`, JSON.stringify(body, null, 2));
+    // Debug Profundo (Mantido apenas ID para performance)
+    console.log(`[PUT] Atualizando registro: ${id}`);
 
     // Convert arrays/buffers from frontend into Bytes if necessary
     // In JS we can just assume `anexoFotos` and `anexoArquivos` are coming as Base64 Strings,
