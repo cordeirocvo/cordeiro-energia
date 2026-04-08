@@ -122,3 +122,64 @@ model GPSLog {
   longitude Float
   createdAt DateTime     @default(now())
 }
+
+// ──────────────────────────────────────────────────────────
+// MODELOS SOLIS CLOUD ( MONITORAMENTO SOLAR )
+// ──────────────────────────────────────────────────────────
+
+model SolisConfig {
+  id           String   @id @default("default")
+  syncInterval Int      @default(10) // Em minutos: 1, 5, 10, 15, 20, 30
+  active       Boolean  @default(true)
+  lastSync     DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SolisStation {
+  id            String   @id // ID da Solis
+  stationName   String?
+  fullAddress   String?
+  power         Float?
+  status        Int?
+  rawJson       Json?
+  inverters     SolisInverter[]
+  alarms        SolisAlarm[]
+  generationLogs SolisGenerationLog[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SolisInverter {
+  id          String   @id // ID da Solis
+  sn          String   @unique
+  stationId   String
+  station     SolisStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  model       String?
+  rawJson     Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SolisAlarm {
+  id          String   @id @default(uuid())
+  stationId   String
+  station     SolisStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  alarmId     String?
+  alarmName   String?
+  alarmDevice String?
+  alarmStatus Int? // 1: Open, 2: Closed
+  alarmTime   DateTime?
+  rawJson     Json?
+  createdAt   DateTime @default(now())
+}
+
+model SolisGenerationLog {
+  id          String   @id @default(uuid())
+  stationId   String
+  station     SolisStation @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  date        String // Formato YYYY-MM-DD ou similar
+  energy      Float
+  rawJson     Json?
+  createdAt   DateTime @default(now())
+}

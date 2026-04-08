@@ -68,6 +68,8 @@ export async function POST() {
              telhado: row[19] || "",
              telefoneOriginal: row[20] || "",
              vendedorOriginal: row[21] || "",
+             // Lógica Sugerida: Se instalação na planilha for SIM/TRUE, forçar status FINALIZADO
+             status: (row[3]?.trim().toUpperCase() === "SIM" || row[3]?.trim().toUpperCase() === "TRUE") ? "FINALIZADO" : undefined
         };
 
         if (existingId) {

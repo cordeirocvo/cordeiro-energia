@@ -4,8 +4,8 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   
-  // Apenas o login e sua API são públicos. Tudo o mais exige autenticação.
-  const isPublicPath = path === '/login' || path.startsWith('/api/login');
+  // Apenas o login e o teste da Solis são públicos temporariamente para teste local.
+  const isPublicPath = path === '/login' || path.startsWith('/api/login') || path === '/admin/solis-test';
 
   const token = request.cookies.get('auth_token')?.value || '';
 

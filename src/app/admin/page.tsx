@@ -54,7 +54,13 @@ export default function AdminPage() {
           const instaladoStr = item.instalacao?.trim().toUpperCase();
           const statusStr = item.status?.trim().toUpperCase();
           
-          const isConcluded = (statusStr === "FINALIZADO" || instaladoStr === "TRUE");
+          // Lógica robusta para detectar se está concluído (Sheet ou Banco Local)
+          const isConcluded = (
+            statusStr === "FINALIZADO" || 
+            statusStr === "FINALIZADA" || 
+            instaladoStr === "TRUE" || 
+            instaladoStr === "SIM"
+          );
           return !isConcluded;
         });
 
@@ -186,6 +192,15 @@ export default function AdminPage() {
     window.location.href = "/login";
   };
 
+  const handleSolisAccess = () => {
+    const pass = prompt("Digite a senha de acesso técnico:");
+    if (pass === "a123") {
+      window.location.href = "/admin/solis-test";
+    } else if (pass !== null) {
+      alert("Senha incorreta.");
+    }
+  };
+
   // Filtragem Dinâmica da Tabela
   const instalacoesFiltradas = instalacoes.filter(item => {
      const mathCliente = item.cliente.toLowerCase().includes(pesquisaCliente.toLowerCase());
@@ -233,6 +248,12 @@ export default function AdminPage() {
                 <a href="/" className="flex items-center text-sm bg-brand-blue text-white px-4 py-2 rounded shadow font-bold hover:bg-blue-800 transition">
                     🏠 Voltar ao Portal
                 </a>
+                {/* Botão Oculto Solis */}
+                <button 
+                  onClick={handleSolisAccess}
+                  className="w-2 h-2 bg-transparent hover:bg-gray-200 rounded-full ml-1 opacity-10 hover:opacity-100 transition-opacity"
+                  title="Configurações Técnicas"
+                />
             </div>
         </div>
 
@@ -380,11 +401,19 @@ export default function AdminPage() {
                           <div className="space-y-4">
                               <div>
                                   <label className="block text-sm font-bold text-brand-blue mb-1">Status Dinâmico (Configurável)</label>
-                                  <select name="status" defaultValue={selectedInstalacao.status || ""} className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-blue text-gray-700 font-bold">
+                                  <select 
+                                    name="status" 
+                                    defaultValue={selectedInstalacao.status || ""} 
+                                    className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-blue text-gray-700 font-bold"
+                                  >
                                       <option value="">Aguardando Inicio</option>
                                       {statusOptions.map(opt => (
                                           <option key={opt.id} value={opt.label}>{opt.label}</option>
                                       ))}
+                                      {/* Garantir que Finalizado esteja sempre disponível se não estiver no statusOptions */}
+                                      {!statusOptions.find(o => o.label.toUpperCase() === "FINALIZADO") && (
+                                        <option value="Finalizado">Finalizado</option>
+                                      )}
                                   </select>
                               </div>
                               

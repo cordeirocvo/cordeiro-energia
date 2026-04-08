@@ -12,6 +12,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
     }
 
+    // Debug
+    console.log(`Atualizando instalação ${id}:`, body);
+    console.log(`Status recebido para atualização: ${body.status}`);
+
     // Convert arrays/buffers from frontend into Bytes if necessary
     // In JS we can just assume `anexoFotos` and `anexoArquivos` are coming as Base64 Strings,
     // we can save them as bytes using Buffer.from, but Prisma can store them as strings or bytes.
