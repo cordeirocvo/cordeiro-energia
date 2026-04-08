@@ -183,9 +183,9 @@ export default function AdminPage() {
       if (fotosFile) dataUpdate.anexoFotos = await toBase64(fotosFile);
       else delete dataUpdate.anexoFotos;
 
-      // Log para depuração local
+      // Log para depuração local em destaque
+      console.warn(">>> [CAPTURA FRONTEND] STATUS ESCOLHIDO:", dataUpdate.status);
       console.log("=== INÍCIO DO SALVAMENTO ===");
-      console.log("STATUS SENDO ENVIADO:", dataUpdate.status);
       console.log("DADOS COMPLETOS:", dataUpdate);
 
       const arquivosFile = e.target.anexoArquivos?.files[0];

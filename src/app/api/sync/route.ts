@@ -3,6 +3,8 @@ import Papa from "papaparse";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+export const dynamic = 'force-dynamic';
+
 const GOOGLE_SHEETS_CSV_URL = "https://docs.google.com/spreadsheets/d/1esS5CGW5uYLHOhLc_Bd1B_0A3_DIYsjcw8wSmy3dvyc/export?format=csv&id=1esS5CGW5uYLHOhLc_Bd1B_0A3_DIYsjcw8wSmy3dvyc&gid=0";
 
 export async function POST() {
@@ -47,7 +49,7 @@ export async function POST() {
 
         const existingId = existingMap.get(cliente);
 
-        const data = {
+        const data: any = {
              cliente,
              diaPrev: row[2] || "",
              instalacao: row[3] || "",
@@ -67,13 +69,17 @@ export async function POST() {
              nRua: row[18] || "",
              telhado: row[19] || "",
              telefoneOriginal: row[20] || "",
-             vendedorOriginal: row[21] || "",
-             // Lógica Sugerida: Se instalação na planilha for SIM/TRUE, forçar status FINALIZADO
-             status: (row[3]?.trim().toUpperCase() === "SIM" || row[3]?.trim().toUpperCase() === "TRUE") ? "FINALIZADO" : undefined
+             vendedorOriginal: row[21] || ""
         };
 
+        // Lógica de Blindagem: Só altera o status local se a planilha confirmar finalização
+        const isFinalized = (row[3]?.trim().toUpperCase() === "SIM" || row[3]?.trim().toUpperCase() === "TRUE");
+        if (isFinalized) {
+            data.status = "FINALIZADO";
+        }
+
         if (existingId) {
-             transactions.push(
+            transactions.push(
                prisma.planilhaInstalacao.update({
                  where: { id: existingId },
                  data
