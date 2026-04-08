@@ -32,7 +32,18 @@ export default function TVDashboard() {
           if (!item.cliente || item.cliente.trim() === '') return false;
           const instaladoStr = item.instalacao?.trim().toUpperCase();
           const statusStr = item.status?.trim().toUpperCase();
-          const isConcluded = (statusStr === "FINALIZADO" || instaladoStr === "TRUE");
+          
+          // Lógica definitiva de finalização (Filtra de Admin e TV)
+          const isConcluded = (
+            statusStr === "FINALIZADO" || 
+            statusStr === "FINALIZADA" || 
+            statusStr === "CONCLUIDO" || 
+            statusStr === "CONCLUÍDO" || 
+            statusStr === "CONCLUIDA" || 
+            statusStr === "CONCLUÍDA" || 
+            instaladoStr === "TRUE" || 
+            instaladoStr === "SIM"
+          );
           return !isConcluded;
         });
 

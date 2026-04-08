@@ -54,10 +54,14 @@ export default function AdminPage() {
           const instaladoStr = item.instalacao?.trim().toUpperCase();
           const statusStr = item.status?.trim().toUpperCase();
           
-          // Lógica robusta para detectar se está concluído (Sheet ou Banco Local)
+          // Lógica definita de finalização (Filtra de Admin e TV)
           const isConcluded = (
             statusStr === "FINALIZADO" || 
             statusStr === "FINALIZADA" || 
+            statusStr === "CONCLUIDO" || 
+            statusStr === "CONCLUÍDO" || 
+            statusStr === "CONCLUIDA" || 
+            statusStr === "CONCLUÍDA" || 
             instaladoStr === "TRUE" || 
             instaladoStr === "SIM"
           );
