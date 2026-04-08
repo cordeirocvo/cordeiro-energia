@@ -12,9 +12,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
     }
 
-    // Debug
-    console.log(`Atualizando instalação ${id}:`, body);
-    console.log(`Status recebido para atualização: ${body.status}`);
+    // Debug Profundo
+    console.log(`[PUT] Recebendo atualização para ID: ${id}`);
+    console.log(`[PUT] Body recebido:`, JSON.stringify(body, null, 2));
 
     // Convert arrays/buffers from frontend into Bytes if necessary
     // In JS we can just assume `anexoFotos` and `anexoArquivos` are coming as Base64 Strings,
@@ -45,7 +45,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       data: dataUpdate,
     });
     
-    // Sincronização concluída (N8N paralizado)
+    console.log(`[PRISMA] Registro atualizado com sucesso:`, JSON.stringify(updated, null, 2));
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {

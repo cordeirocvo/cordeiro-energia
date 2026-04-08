@@ -41,6 +41,23 @@ export default function AdminPage() {
   const [pesquisaCliente, setPesquisaCliente] = useState("");
   const [filtroStatus, setFiltroStatus] = useState("");
 
+  // Estado do Formulário Controlado
+  const [formValues, setFormValues] = useState<any>({});
+
+  // Efeito para sincronizar selectedInstalacao com o formulário controlado
+  useEffect(() => {
+    if (selectedInstalacao) {
+      setFormValues({ ...selectedInstalacao });
+    } else {
+      setFormValues({});
+    }
+  }, [selectedInstalacao]);
+
+  const handleInputChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormValues((prev: any) => ({ ...prev, [name]: value }));
+  };
+
   const fetchInstalacoes = async () => {
     setLoading(true);
     const res = await fetch("/api/instalacoes");
@@ -158,15 +175,14 @@ export default function AdminPage() {
       e.preventDefault();
       setSaving(true);
       
-      const formData = new FormData(e.target);
-      const dataUpdate: any = Object.fromEntries(formData);
+      const dataUpdate = { ...formValues };
       
       const fotosFile = e.target.anexoFotos?.files[0];
       if (fotosFile) dataUpdate.anexoFotos = await toBase64(fotosFile);
       else delete dataUpdate.anexoFotos;
 
       // Log para depuração local
-      console.log("Dados sendo enviados para salvamento:", dataUpdate);
+      console.log("DADOS CONTROLADOS SENDO ENVIADOS:", dataUpdate);
 
       const arquivosFile = e.target.anexoArquivos?.files[0];
       if (arquivosFile) dataUpdate.anexoArquivos = await toBase64(arquivosFile);
@@ -414,14 +430,14 @@ export default function AdminPage() {
                                   <label className="block text-sm font-bold text-brand-blue mb-1">Status Dinâmico (Configurável)</label>
                                   <select 
                                     name="status" 
-                                    defaultValue={selectedInstalacao.status || ""} 
+                                    value={formValues.status || ""} 
+                                    onChange={handleInputChange}
                                     className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-blue text-gray-700 font-bold"
                                   >
                                       <option value="">Aguardando Inicio</option>
                                       {statusOptions.map(opt => (
                                           <option key={opt.id} value={opt.label}>{opt.label}</option>
                                       ))}
-                                      {/* Garantir que Finalizado esteja sempre disponível se não estiver no statusOptions */}
                                       {!statusOptions.find(o => o.label.toUpperCase() === "FINALIZADO") && (
                                         <option value="Finalizado">Finalizado</option>
                                       )}
@@ -430,22 +446,44 @@ export default function AdminPage() {
                               
                               <div>
                                   <label className="block text-sm font-bold text-gray-700 mb-1">Solicitação Ativa</label>
-                                  <input name="solicitacao" defaultValue={selectedInstalacao.solicitacao || ""} className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange" />
+                                  <input 
+                                    name="solicitacao" 
+                                    value={formValues.solicitacao || ""} 
+                                    onChange={handleInputChange}
+                                    className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange" 
+                                  />
                               </div>
 
                               <div>
                                   <label className="block text-sm font-bold text-gray-700 mb-1">Vendedor Substituto</label>
-                                  <input name="vendedor" defaultValue={selectedInstalacao.vendedor || selectedInstalacao.vendedorOriginal || ""} className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange" />
+                                  <input 
+                                    name="vendedor" 
+                                    value={formValues.vendedor || formValues.vendedorOriginal || ""} 
+                                    onChange={handleInputChange}
+                                    className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange" 
+                                  />
                               </div>
 
                               <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Data Solicitação</label>
-                                    <input type="date" name="dataSolicitacao" defaultValue={selectedInstalacao.dataSolicitacao ? new Date(selectedInstalacao.dataSolicitacao).toISOString().split('T')[0] : hojeFormatado} className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm" />
+                                    <input 
+                                      type="date" 
+                                      name="dataSolicitacao" 
+                                      value={formValues.dataSolicitacao ? new Date(formValues.dataSolicitacao).toISOString().split('T')[0] : hojeFormatado} 
+                                      onChange={handleInputChange}
+                                      className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm" 
+                                    />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">Data Prevista</label>
-                                    <input type="date" name="dataPrevista" defaultValue={selectedInstalacao.dataPrevista || ""} className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm" />
+                                    <input 
+                                      type="date" 
+                                      name="dataPrevista" 
+                                      value={formValues.dataPrevista || ""} 
+                                      onChange={handleInputChange}
+                                      className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm" 
+                                    />
                                 </div>
                               </div>
                           </div>
@@ -453,17 +491,34 @@ export default function AdminPage() {
                           <div className="space-y-4">
                               <div>
                                   <label className="block text-sm font-bold text-gray-700 mb-1">Telefone Cliente (WhatsApp)</label>
-                                  <input name="telefoneCliente" defaultValue={selectedInstalacao.telefoneCliente || selectedInstalacao.telefoneOriginal || ""} className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange" />
+                                  <input 
+                                    name="telefoneCliente" 
+                                    value={formValues.telefoneCliente || formValues.telefoneOriginal || ""} 
+                                    onChange={handleInputChange}
+                                    className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange" 
+                                  />
                               </div>
 
                               <div>
                                   <label className="block text-sm font-bold text-gray-700 mb-1">Local / Cidade Base</label>
-                                  <input name="cidade" defaultValue={selectedInstalacao.cidade || selectedInstalacao.cidadeOriginal || ""} className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange" />
+                                  <input 
+                                    name="cidade" 
+                                    value={formValues.cidade || formValues.cidadeOriginal || ""} 
+                                    onChange={handleInputChange}
+                                    className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange" 
+                                  />
                               </div>
 
                               <div>
                                   <label className="block text-sm font-bold text-gray-700 mb-1">Anotações Relevantes de Atendimento</label>
-                                  <textarea name="observacao" defaultValue={selectedInstalacao.observacao || ""} rows={4} className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange focus:outline-none" placeholder="Digite os diários de obra..."></textarea>
+                                  <textarea 
+                                    name="observacao" 
+                                    value={formValues.observacao || ""} 
+                                    onChange={handleInputChange}
+                                    rows={4} 
+                                    className="w-full border-gray-300 border p-3 rounded-lg bg-white shadow-sm focus:ring-2 focus:ring-brand-orange focus:outline-none" 
+                                    placeholder="Digite os diários de obra..."
+                                  ></textarea>
                               </div>
                           </div>
                       </div>
