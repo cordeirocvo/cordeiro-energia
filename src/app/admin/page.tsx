@@ -161,6 +161,9 @@ export default function AdminPage() {
       if (fotosFile) dataUpdate.anexoFotos = await toBase64(fotosFile);
       else delete dataUpdate.anexoFotos;
 
+      // Log para depuração local
+      console.log("Dados sendo enviados para salvamento:", dataUpdate);
+
       const arquivosFile = e.target.anexoArquivos?.files[0];
       if (arquivosFile) dataUpdate.anexoArquivos = await toBase64(arquivosFile);
       else delete dataUpdate.anexoArquivos;
@@ -379,7 +382,11 @@ export default function AdminPage() {
                       <button onClick={() => setSelectedInstalacao(null)} className="text-white hover:text-red-300 bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center font-bold text-xl transition-colors">X</button>
                   </div>
 
-                  <form onSubmit={handleUpdate} className="p-6 overflow-y-auto flex-1 space-y-6 bg-gray-50">
+                  <form 
+                    key={selectedInstalacao.id} 
+                    onSubmit={handleUpdate} 
+                    className="p-6 overflow-y-auto flex-1 space-y-6 bg-gray-50"
+                  >
                       
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
                           <div>
