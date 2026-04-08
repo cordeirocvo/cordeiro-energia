@@ -60,7 +60,8 @@ export default function AdminPage() {
 
   const fetchInstalacoes = async () => {
     setLoading(true);
-    const res = await fetch("/api/instalacoes");
+    // Adicionado ?t para evitar cache do navegador
+    const res = await fetch(`/api/instalacoes?t=${Date.now()}`);
     if (res.ok) {
         const { data } = await res.json();
         
@@ -152,6 +153,7 @@ export default function AdminPage() {
     }
 
     try {
+
       const res = await fetch('/api/publico', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -182,7 +184,9 @@ export default function AdminPage() {
       else delete dataUpdate.anexoFotos;
 
       // Log para depuração local
-      console.log("DADOS CONTROLADOS SENDO ENVIADOS:", dataUpdate);
+      console.log("=== INÍCIO DO SALVAMENTO ===");
+      console.log("STATUS SENDO ENVIADO:", dataUpdate.status);
+      console.log("DADOS COMPLETOS:", dataUpdate);
 
       const arquivosFile = e.target.anexoArquivos?.files[0];
       if (arquivosFile) dataUpdate.anexoArquivos = await toBase64(arquivosFile);

@@ -45,7 +45,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       data: dataUpdate,
     });
     
-    console.log(`[PRISMA] Registro atualizado com sucesso:`, JSON.stringify(updated, null, 2));
+    console.log(`[PRISMA SUCCESS] Status Final no Banco:`, updated.status);
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {
