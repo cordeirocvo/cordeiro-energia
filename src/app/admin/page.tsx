@@ -378,8 +378,17 @@ export default function AdminPage() {
                                           {item.vencimentoParecer || '-'}
                                       </td>
                                       <td className="p-4">
-                                          <p className="font-bold text-gray-800 text-xs truncate max-w-[200px]">{item.status || 'Não Iniciado'}</p>
-                                          <p className="text-gray-400 text-xs truncate max-w-[200px]">{item.vendedorOriginal || '-'}</p>
+                                          <div className="flex flex-col gap-1">
+                                              <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full inline-block w-fit ${
+                                                  item.status?.toUpperCase() === 'FINALIZADO' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-blue-100 text-blue-700 border border-blue-200'
+                                              }`}>
+                                                  {item.status || 'Não Iniciado'}
+                                              </span>
+                                              <p className="text-[10px] text-gray-500 font-medium">
+                                                  <span className="text-gray-400">Planilha:</span> {item.statusProtocolo || '-'}
+                                              </p>
+                                              <p className="text-[10px] text-gray-400 italic">Vendedor: {item.vendedorOriginal || '-'}</p>
+                                          </div>
                                       </td>
                                   </tr>
                               );
